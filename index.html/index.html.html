@@ -1,0 +1,2213 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <title>Hạ gục kẻ địch Tiếng Trung</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #ffffff;
+        --mut: #cfe6ff;
+        --blood: #ff3d6e;
+        --olive: #00a6ff;
+        --line: #ffd23b;
+        --hd: "Oswald", "Noto Sans SC", "Microsoft YaHei", Impact, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #0a0807;
+        overflow: hidden;
+        font-family: system-ui, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+        color: var(--ink);
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        cursor: crosshair;
+        touch-action: none;
+      }
+      .screen {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+        background: radial-gradient(
+          ellipse at center,
+          rgba(255, 255, 255, 0),
+          rgba(10, 30, 80, 0.35)
+        );
+      }
+      .screen.on {
+        display: flex;
+      }
+      .card {
+        width: min(580px, calc(100% - 24px));
+        max-height: calc(100% - 24px);
+        overflow: auto;
+        padding: 22px;
+        background: rgba(14, 40, 104, 0.94);
+        border: 3px solid var(--line);
+        outline: 1px dashed rgba(255, 255, 255, 0.4);
+        outline-offset: -9px;
+        box-shadow:
+          0 0 0 1px #000,
+          0 18px 60px #000;
+      }
+      h1 {
+        margin: 0 0 18px;
+        text-align: center;
+        font: 700 clamp(38px, 10.5vw, 64px)/1.08 var(--hd);
+        letter-spacing: 0.02em;
+        background: linear-gradient(180deg, #fff7a8, #ffd23b 45%, #ff7a1a);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 4px 0 #0b2a6b)
+          drop-shadow(0 0 20px rgba(255, 210, 59, 0.55));
+      }
+      h2 {
+        margin: 0;
+        font: 700 26px var(--hd);
+        letter-spacing: 0.04em;
+      }
+      .sub {
+        margin: 6px 0 16px;
+        text-align: center;
+        font: 500 20px var(--hd);
+        letter-spacing: 0.2em;
+        color: #c9b88a;
+      }
+      h3 {
+        margin: 18px 0 8px;
+        font: 500 15px var(--hd);
+        letter-spacing: 0.06em;
+        color: var(--mut);
+      }
+      p {
+        line-height: 1.6;
+        margin: 8px 0;
+      }
+      .sum {
+        text-align: center;
+        font-size: 15px;
+      }
+      .hint {
+        text-align: center;
+        color: var(--mut);
+        font-size: 13px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+      }
+      .row .b {
+        flex: 1;
+      }
+      button {
+        font: inherit;
+        color: var(--ink);
+        cursor: pointer;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .chips button,
+      .w,
+      .b {
+        background: #1f4fb3;
+        border: 1px solid #6fb2ff;
+        padding: 8px 12px;
+        border-radius: 2px;
+        font-size: 14px;
+      }
+      button[aria-pressed="true"] {
+        background: #ffd23b;
+        border-color: #fff;
+        color: #14264f;
+        font-weight: 700;
+      }
+      .b {
+        padding: 12px 16px;
+        font: 700 17px var(--hd);
+        letter-spacing: 0.06em;
+        border-color: #ffb703;
+      }
+      .b.main {
+        background: linear-gradient(#ffd23b, #ff8a1a);
+        border-color: #fff;
+        color: #3a1a00;
+      }
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible {
+        outline: 2px solid #ffd23b;
+        outline-offset: 2px;
+      }
+      .words {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .w {
+        text-align: left;
+      }
+      .w b {
+        font-size: 18px;
+        margin-right: 6px;
+      }
+      .w small {
+        display: block;
+        color: var(--mut);
+        font-size: 12px;
+        margin-top: 2px;
+      }
+      .w[aria-pressed="true"] small {
+        color: #5a4300;
+      }
+      .tg {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 12px 18px 0 0;
+        font-size: 14px;
+      }
+      textarea {
+        width: 100%;
+        background: #0c2a70;
+        border: 1px solid #6fb2ff;
+        color: var(--ink);
+        padding: 10px;
+        font: 14px/1.5 inherit;
+        resize: vertical;
+      }
+      .warn {
+        color: #ff8a95;
+        font-size: 14px;
+        min-height: 20px;
+      }
+      .nm {
+        display: block;
+        margin: 12px 0 0;
+        font-size: 14px;
+        color: var(--mut);
+      }
+      .nm input {
+        width: 100%;
+        margin-top: 6px;
+        padding: 10px;
+        background: #0c2a70;
+        border: 1px solid #6fb2ff;
+        color: #fff;
+        font: 600 16px inherit;
+        border-radius: 2px;
+      }
+      .bl {
+        list-style: none;
+        margin: 12px 0 0;
+        padding: 0;
+      }
+      .bl li {
+        display: grid;
+        grid-template-columns: 34px 1fr auto;
+        gap: 8px;
+        padding: 9px 6px;
+        border-bottom: 1px solid rgba(111, 178, 255, 0.3);
+        font-size: 15px;
+        align-items: center;
+      }
+      .bl li.me {
+        background: rgba(255, 210, 59, 0.18);
+      }
+      .bl .rk {
+        font: 700 18px var(--hd);
+        color: #ffd23b;
+      }
+      .bl .sc {
+        font: 700 20px var(--hd);
+        color: #ffd23b;
+      }
+      .bl small {
+        display: block;
+        color: var(--mut);
+        font-size: 12px;
+      }
+      #bs {
+        position: fixed;
+        left: max(12px, env(safe-area-inset-left));
+        bottom: max(12px, env(safe-area-inset-bottom));
+        display: none;
+        background: rgba(14, 40, 104, 0.9);
+        border: 1px solid #ffd23b;
+        padding: 8px 14px;
+        font-size: 14px;
+      }
+      .big {
+        text-align: center;
+        font: 700 72px/1 var(--hd);
+        color: #ffd23b;
+        margin: 10px 0 2px;
+      }
+      #om ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      #om li {
+        font-size: 14px;
+        margin: 5px 0;
+      }
+      #om b {
+        font-size: 18px;
+        margin-right: 4px;
+      }
+      #bm {
+        position: fixed;
+        right: max(12px, env(safe-area-inset-right));
+        bottom: max(12px, env(safe-area-inset-bottom));
+        display: none;
+        background: rgba(14, 40, 104, 0.9);
+        border: 1px solid #ffd23b;
+        padding: 8px 14px;
+        font-size: 14px;
+      }
+      #ans {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(430px, calc(100% - 24px));
+        display: none;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        z-index: 5;
+      }
+      @media (min-width: 700px) {
+        #ans {
+          width: min(760px, calc(100% - 24px));
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+      #ans button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 52px;
+        padding: 6px 8px;
+        background: rgba(14, 40, 104, 0.94);
+        border: 2px solid #ffd23b;
+        border-radius: 4px;
+        line-height: 1.15;
+        text-align: center;
+      }
+      #ans button i {
+        font: 800 13px var(--hd);
+        font-style: normal;
+        color: #14264f;
+        background: #ffd23b;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        flex: none;
+        display: grid;
+        place-items: center;
+      }
+      #ans button.zh span {
+        font:
+          700 26px "Noto Sans SC",
+          "Microsoft YaHei",
+          "PingFang SC",
+          sans-serif;
+      }
+      #ans button.vi span {
+        font:
+          600 14px "Segoe UI",
+          sans-serif;
+      }
+      #ans button:hover:not(:disabled) {
+        background: #1f4fb3;
+      }
+      #ans button:disabled {
+        cursor: default;
+      }
+      #ans button.ok {
+        background: #16a34a;
+        border-color: #fff;
+      }
+      #ans button.bad {
+        background: #dc2626;
+        border-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <div id="ans"></div>
+    <div id="menu" class="screen on">
+      <div class="card">
+        <h1>Tiêu Diệt Địch<br />Bằng Tiếng Trung</h1>
+        <p class="sum" id="sum"></p>
+        <label class="nm"
+          >Cho anh xin tên của bấy bi
+          <input id="nm" maxlength="16" autocomplete="off" placeholder="Player"
+        /></label>
+        <div class="row">
+          <button class="b main" id="go">Combat now</button
+          ><button class="b" id="bx">BXH</button
+          ><button class="b" id="st">Setting</button>
+        </div>
+        <p class="hint">Nhấn R để nghe lại phát âm, Esc để về menu.</p>
+      </div>
+    </div>
+    <div id="set" class="screen">
+      <div class="card">
+        <h2>Setting</h2>
+        <h3>Kiểu câu hỏi</h3>
+        <div class="chips" id="cm"></div>
+        <label class="tg"
+          ><input type="checkbox" id="hint" /> Hiện gợi ý ở đề bài</label
+        >
+        <label class="tg"><input type="checkbox" id="snd" /> Âm thanh</label>
+        <label class="tg"><input type="checkbox" id="voc" /> Đọc phát âm</label>
+        <h3>Độ khó</h3>
+        <div class="chips" id="cd"></div>
+        <h3>Số mạng</h3>
+        <div class="chips" id="cl"></div>
+        <h3>Tốc độ giọng đọc</h3>
+        <div class="chips" id="cv"></div>
+        <p class="hint" id="vh" style="text-align: left"></p>
+        <h3>Chọn từ cần luyện <span id="cnt"></span></h3>
+        <div class="chips" id="cg"></div>
+        <div class="words" id="cw"></div>
+        <p class="warn" id="warn"></p>
+        <h3>Thêm từ của bạn</h3>
+        <textarea
+          id="ta"
+          rows="3"
+          placeholder="Mỗi dòng một từ, dạng: 汉字 | pinyin | nghĩa&#10;Ví dụ: 苹果 | píngguǒ | quả táo"
+        ></textarea>
+        <div class="row">
+          <button class="b" id="add">Thêm vào danh sách</button>
+        </div>
+        <p class="hint" id="am"></p>
+        <div class="row"><button class="b main" id="done">Xong</button></div>
+      </div>
+    </div>
+    <div id="over" class="screen">
+      <div class="card">
+        <h2 style="text-align: center">Game over</h2>
+        <div class="big" id="os">0</div>
+        <p class="hint" id="ob"></p>
+        <div id="om"></div>
+        <div class="row">
+          <button class="b main" id="again">Chơi lại</button
+          ><button class="b" id="bx2">BXH</button
+          ><button class="b" id="home">Menu</button>
+        </div>
+      </div>
+    </div>
+    <div id="bxs" class="screen">
+      <div class="card">
+        <h2>BXH</h2>
+        <ol class="bl" id="bl"></ol>
+        <p class="hint" id="bn"></p>
+        <div class="row">
+          <button class="b main" id="bback">Quay lại</button>
+        </div>
+      </div>
+    </div>
+    <button id="bs">🔊 Nghe lại</button>
+    <button id="bm">Menu</button>
+    <script>
+      const c = document.getElementById("c"),
+        x = c.getContext("2d"),
+        $ = (i) => document.getElementById(i);
+      const F =
+        '"Noto Sans SC","Microsoft YaHei","PingFang SC","Segoe UI",sans-serif';
+      const G = ["Mua sắm", "Màu sắc", "Ngữ pháp", "Từ của bạn"];
+      const BASE = [
+        ["过", "guo", "đã từng", 2],
+        ["商场", "shāngchǎng", "trung tâm thương mại", 0],
+        ["进去", "jìnqù", "đi vào", 0],
+        ["条", "tiáo", "cái, chiếc (quần váy)", 0],
+        ["裤子", "kùzi", "quần", 0],
+        ["白色", "báisè", "màu trắng", 1],
+        ["因为", "yīnwèi", "bởi vì", 2],
+        ["试", "shì", "thử", 0],
+        ["红色", "hóngsè", "màu đỏ", 1],
+        ["所以", "suǒyǐ", "cho nên", 2],
+        ["书包", "shūbāo", "cặp sách", 0],
+        ["过去", "guòqù", "đi sang", 0],
+        ["绿色", "lǜsè", "màu xanh lá cây", 1],
+        ["黑色", "hēisè", "màu đen", 1],
+        ["更", "gèng", "càng, hơn", 2],
+      ];
+      let S = {
+        mode: "vi2zh",
+        hint: true,
+        diff: 1,
+        lives: 5,
+        sound: true,
+        voice: true,
+        rate: 0.9,
+        name: "",
+        board: [],
+        sel: null,
+        custom: [],
+      };
+      try {
+        Object.assign(S, JSON.parse(localStorage.getItem("htls2") || "{}"));
+      } catch (e) {}
+      if (!S.sel) S.sel = BASE.map((w) => w[0]);
+      const save = () => {
+        try {
+          localStorage.setItem("htls2", JSON.stringify(S));
+        } catch (e) {}
+      };
+      const all = () => BASE.concat(S.custom),
+        pool = () => all().filter((w) => S.sel.includes(w[0]));
+      const esc = (s) =>
+        String(s).replace(
+          /[&<>"]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[m],
+        );
+      let W,
+        H,
+        dpr,
+        HZ,
+        st = "idle",
+        hp = 5,
+        mhp = 5,
+        score = 0,
+        combo = 0,
+        rounds = 0,
+        tgt,
+        qm = "vi2zh",
+        en = [],
+        pts = [],
+        tr = [],
+        shake = 0,
+        flash = 0,
+        muz = 0,
+        msg = null,
+        px = 0,
+        mx = 0,
+        my = 0,
+        t = 0,
+        best = 0,
+        miss = {},
+        nf = 2,
+        fl = null,
+        fires = [],
+        ac = null;
+      try {
+        best = +localStorage.getItem("htls") || 0;
+      } catch (e) {}
+      const R = (a, b) => a + Math.random() * (b - a);
+      const rng = (a) => () => {
+        a |= 0;
+        a = (a + 0x6d2b79f5) | 0;
+        let q = Math.imul(a ^ (a >>> 15), 1 | a);
+        q = (q + Math.imul(q ^ (q >>> 7), 61 | q)) ^ q;
+        return ((q ^ (q >>> 14)) >>> 0) / 4294967296;
+      };
+      const bg = document.createElement("canvas");
+      const sp = document.createElement("canvas");
+      sp.width = sp.height = 128;
+      {
+        const s = sp.getContext("2d"),
+          g = s.createRadialGradient(64, 64, 0, 64, 64, 64);
+        g.addColorStop(0, "rgba(240,245,255,.55)");
+        g.addColorStop(1, "rgba(240,245,255,0)");
+        s.fillStyle = g;
+        s.fillRect(0, 0, 128, 128);
+      }
+      const smokes = Array.from({ length: 7 }, () => ({
+        x: R(0, 1),
+        y: R(0.05, 0.5),
+        s: R(0.3, 0.7),
+        v: R(0.004, 0.012),
+      }));
+      const embers = Array.from({ length: 40 }, () => ({
+        x: R(0, 1),
+        y: R(0, 1),
+        v: R(0.02, 0.07),
+        p: R(0, 6),
+      }));
+      function buildBG() {
+        bg.width = W * dpr;
+        bg.height = H * dpr;
+        const b = bg.getContext("2d");
+        b.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const r = rng(11),
+          rr = (a, z) => a + r() * (z - a),
+          u = H / 700;
+        HZ = H * 0.54;
+        fires = [];
+        let g = b.createLinearGradient(0, 0, 0, HZ);
+        g.addColorStop(0, "#1e9bff");
+        g.addColorStop(0.55, "#7fd3ff");
+        g.addColorStop(1, "#fff1b8");
+        b.fillStyle = g;
+        b.fillRect(0, 0, W, H);
+        g = b.createRadialGradient(
+          W * 0.7,
+          HZ - H * 0.1,
+          3,
+          W * 0.7,
+          HZ - H * 0.1,
+          H * 0.3,
+        );
+        g.addColorStop(0, "rgba(255,255,220,1)");
+        g.addColorStop(0.2, "rgba(255,230,120,.65)");
+        g.addColorStop(1, "rgba(255,210,80,0)");
+        b.fillStyle = g;
+        b.fillRect(0, 0, W, H);
+        for (let i = 0; i < 16; i++) {
+          b.fillStyle = "rgba(255,255,255," + rr(0.25, 0.55) + ")";
+          b.beginPath();
+          b.ellipse(
+            rr(0, W),
+            rr(H * 0.04, HZ),
+            rr(W * 0.15, W * 0.45),
+            rr(10, 32) * u,
+            0,
+            0,
+            6.283,
+          );
+          b.fill();
+        }
+        const city = (col, yb, hmin, hmax, lit) => {
+          for (let q = -30; q < W; ) {
+            const w = rr(30, 84),
+              h = rr(hmin, hmax) * u;
+            b.fillStyle = col;
+            b.beginPath();
+            b.moveTo(q, yb + 4);
+            b.lineTo(q, yb - h);
+            for (let i = 1; i <= 3; i++)
+              b.lineTo(
+                q + (w * i) / 3,
+                yb - h + rr(0, h * (i < 3 ? 0.22 : 0.1)),
+              );
+            b.lineTo(q + w, yb + 4);
+            b.fill();
+            for (let i = 0; i < lit; i++) {
+              b.fillStyle =
+                r() < 0.5 ? "rgba(255,240,150,.95)" : "rgba(30,40,70,.85)";
+              b.fillRect(
+                q + rr(4, w - 10),
+                yb - h + rr(h * 0.3, h * 0.95),
+                5,
+                7,
+              );
+            }
+            q += w + rr(-6, 10);
+          }
+        };
+        city("#7f95c9", HZ, 40, 110, 3);
+        city("#4f628f", HZ + H * 0.02, 70, 170, 5);
+        fires.push({ x: W * 0.45, y: HZ - 70 * u, s: 0.8 * u * 1.3 });
+        g = b.createLinearGradient(0, HZ, 0, H);
+        g.addColorStop(0, "#9ccf4a");
+        g.addColorStop(1, "#4c8a2b");
+        b.fillStyle = g;
+        b.fillRect(0, HZ + H * 0.02, W, H);
+        for (let i = 0; i < 8; i++) {
+          const cx = rr(0, W),
+            cy = rr(HZ + H * 0.1, H - 120);
+          b.fillStyle = "rgba(70,45,15,.3)";
+          b.strokeStyle = "rgba(255,255,255,.25)";
+          b.beginPath();
+          b.ellipse(cx, cy, rr(30, 90) * u, rr(6, 16) * u, 0, 0, 6.283);
+          b.fill();
+          b.stroke();
+        }
+        const tree = (x0, y0, len, ang, d, w, col) => {
+          if (d < 0 || len < 4) return;
+          const x1 = x0 + Math.cos(ang) * len,
+            y1 = y0 + Math.sin(ang) * len;
+          b.strokeStyle = col;
+          b.lineWidth = w;
+          b.lineCap = "round";
+          b.beginPath();
+          b.moveTo(x0, y0);
+          b.lineTo(x1, y1);
+          b.stroke();
+          for (let i = 0, n = r() < 0.3 ? 3 : 2; i < n; i++)
+            tree(
+              x1,
+              y1,
+              len * rr(0.62, 0.8),
+              ang + rr(-0.8, 0.8),
+              d - 1,
+              w * 0.68,
+              col,
+            );
+        };
+        for (let i = 0; i < 7; i++)
+          tree(
+            rr(0, W),
+            rr(HZ + H * 0.06, HZ + H * 0.26),
+            rr(34, 60) * u,
+            -1.57 + rr(-0.25, 0.25),
+            5,
+            4 * u,
+            "#5a3d22",
+          );
+        const tank = (tx, ty, s) => {
+          b.fillStyle = "#4a5e2e";
+          b.fillRect(tx - 62 * s, ty - 14 * s, 124 * s, 16 * s);
+          b.beginPath();
+          b.arc(tx - 62 * s, ty - 6 * s, 8 * s, 0, 6.283);
+          b.arc(tx + 62 * s, ty - 6 * s, 8 * s, 0, 6.283);
+          b.fill();
+          b.fillRect(tx - 50 * s, ty - 34 * s, 100 * s, 22 * s);
+          b.beginPath();
+          b.moveTo(tx - 30 * s, ty - 34 * s);
+          b.lineTo(tx - 20 * s, ty - 52 * s);
+          b.lineTo(tx + 22 * s, ty - 52 * s);
+          b.lineTo(tx + 34 * s, ty - 34 * s);
+          b.fill();
+          b.save();
+          b.translate(tx + 22 * s, ty - 44 * s);
+          b.rotate(-0.12);
+          b.fillRect(0, -3 * s, 78 * s, 6 * s);
+          b.restore();
+        };
+        const tx = W * 0.2,
+          ty = HZ + H * 0.2;
+        tank(tx, ty, u * 1.1);
+        fires.push({ x: tx - 10 * u, y: ty - 56 * u, s: 1.1 * u * 1.2 });
+        b.fillStyle = "#b4491f";
+        b.fillRect(W * 0.62, HZ + H * 0.16, 16 * u, 22 * u);
+        fires.push({ x: W * 0.62 + 8 * u, y: HZ + H * 0.16, s: 0.9 * u * 1.2 });
+        const sold = (sx, sy, s, d, k) => {
+          b.save();
+          b.translate(sx, sy);
+          b.scale(d * s, s);
+          b.fillStyle = "#34502a";
+          if (k) {
+            b.fillRect(-10, -14, 8, 14);
+            b.fillRect(2, -8, 10, 8);
+          } else {
+            b.fillRect(-7, -22, 6, 22);
+            b.fillRect(1, -22, 6, 22);
+          }
+          const ty2 = k ? -38 : -48;
+          b.fillRect(-9, ty2, 18, 26);
+          b.beginPath();
+          b.arc(0, ty2 - 7, 7, 0, 6.283);
+          b.fill();
+          b.beginPath();
+          b.arc(0, ty2 - 9, 9, Math.PI, 0);
+          b.fill();
+          b.fillRect(2, ty2 + 6, 34, 4);
+          b.fillRect(26, ty2 + 3, 5, 10);
+          b.restore();
+        };
+        for (let i = 0; i < 6; i++) {
+          const sy = rr(HZ + H * 0.05, HZ + H * 0.27);
+          sold(
+            rr(0.04, 0.96) * W,
+            sy,
+            (0.55 + ((sy - HZ) / H) * 2.2) * u,
+            r() < 0.5 ? 1 : -1,
+            r() < 0.25,
+          );
+        }
+        b.fillStyle = "rgba(60,35,10,.3)";
+        b.fillRect(0, H - 100, W, 100);
+        const wy = H - 108;
+        b.strokeStyle = "#4a3520";
+        b.lineWidth = 1.2;
+        for (let k = 0; k < 2; k++) {
+          b.beginPath();
+          for (let q = 0; q <= W; q += 6) {
+            const yy = wy + k * 9 + Math.sin(q * 0.35 + k) * 3;
+            q ? b.lineTo(q, yy) : b.moveTo(q, yy);
+          }
+          b.stroke();
+        }
+        b.lineWidth = 2.5;
+        for (let q = 20; q < W; q += 90) {
+          b.beginPath();
+          b.moveTo(q, wy - 12);
+          b.lineTo(q, wy + 24);
+          b.stroke();
+        }
+        b.strokeStyle = "#7a5a28";
+        b.lineWidth = 1;
+        for (let row = 0; row < 2; row++)
+          for (let q = -30 + (row ? 22 : 0); q < W; q += 44) {
+            b.fillStyle = r() < 0.5 ? "#e6c37e" : "#d2ad63";
+            b.beginPath();
+            b.ellipse(q + 22, H - 20 + row * 12, 22, 9, 0, 0, 6.283);
+            b.fill();
+            b.stroke();
+          }
+        tree(W * 0.03, H + 10, H * 0.2, -1.47, 6, 11 * u, "#3a2714");
+        tree(W * 0.97, H + 10, H * 0.18, -1.69, 6, 10 * u, "#3a2714");
+      }
+      function rs() {
+        dpr = Math.min(devicePixelRatio || 1, 2);
+        W = innerWidth;
+        H = innerHeight;
+        c.width = W * dpr;
+        c.height = H * dpr;
+        x.setTransform(dpr, 0, 0, dpr, 0, 0);
+        buildBG();
+        placeAns();
+      }
+      addEventListener("resize", rs);
+      rs();
+      px = mx = W / 2;
+      my = H / 3;
+      function snd(f, d, ty, v) {
+        if (!ac || !S.sound) return;
+        const o = ac.createOscillator(),
+          g = ac.createGain(),
+          n = ac.currentTime;
+        o.type = ty;
+        o.frequency.setValueAtTime(f, n);
+        o.frequency.exponentialRampToValueAtTime(40, n + d);
+        g.gain.setValueAtTime(v || 0.12, n);
+        g.gain.exponentialRampToValueAtTime(0.001, n + d);
+        o.connect(g);
+        g.connect(ac.destination);
+        o.start();
+        o.stop(n + d);
+      }
+      function wrap(s, mw) {
+        const o = [];
+        let cur = "";
+        for (const w of s.split(" ")) {
+          const q = cur ? cur + " " + w : w;
+          if (cur && x.measureText(q).width > mw) {
+            o.push(cur);
+            cur = w;
+          } else cur = q;
+        }
+        o.push(cur);
+        return o;
+      }
+      let zhv = null;
+      function pickV() {
+        try {
+          const v = speechSynthesis.getVoices();
+          zhv =
+            v.find((a) => /^zh[-_]CN/i.test(a.lang)) ||
+            v.find((a) => /^zh/i.test(a.lang)) ||
+            null;
+        } catch (e) {}
+      }
+      try {
+        pickV();
+        speechSynthesis.addEventListener("voiceschanged", () => {
+          pickV();
+          if ($("set").classList.contains("on")) renderSet();
+        });
+      } catch (e) {}
+      function speak(w, force) {
+        if (!w || !(S.voice || force) || !window.speechSynthesis) return;
+        try {
+          speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(w[0]);
+          u.lang = "zh-CN";
+          u.rate = S.rate;
+          if (zhv) u.voice = zhv;
+          speechSynthesis.speak(u);
+        } catch (e) {}
+      }
+      function addScore() {
+        if (score <= 0) return 0;
+        const n = (S.name || "Người chơi").slice(0, 16),
+          e = { n, s: score, m: S.mode, d: Date.now() };
+        S.board.push(e);
+        S.board.sort((a, b) => b.s - a.s || a.d - b.d);
+        const rk = S.board.indexOf(e) + 1;
+        S.board = S.board.slice(0, 10);
+        save();
+        return rk <= 10 ? rk : 0;
+      }
+      const KINDS = ["run", "horse", "tank", "bike", "car"],
+        TT = { run: 10, horse: 8, tank: 11, bike: 6.5, car: 6 };
+      let bag = [],
+        opts = [],
+        pend = [],
+        lock = false,
+        nextT = 0,
+        ansOn = null;
+      function placeAns() {
+        const k = Math.max(0.78, Math.min(1, W / 520));
+        $("ans").style.top = 58 + 92 * k + 8 + "px";
+      }
+      function buildOpts(p) {
+        const key = (q) => (qm === "zh2vi" ? q[2] : q[0]),
+          seen = new Set([key(tgt)]),
+          others = p
+            .filter((q) => q !== tgt)
+            .sort(() => Math.random() - 0.5)
+            .filter((q) => {
+              const k = key(q);
+              if (seen.has(k)) return false;
+              seen.add(k);
+              return true;
+            })
+            .slice(0, 3);
+        opts = others.concat([tgt]).sort(() => Math.random() - 0.5);
+        const A = $("ans");
+        A.innerHTML = "";
+        opts.forEach((q, i) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = qm === "zh2vi" ? "vi" : "zh";
+          b.innerHTML =
+            "<i>" + (i + 1) + "</i><span>" + esc(key(q)) + "</span>";
+          b.onclick = () => choose(i);
+          A.appendChild(b);
+        });
+        placeAns();
+      }
+      function newRound() {
+        const p = pool(),
+          lv = 1 + Math.floor(rounds / 4);
+        let w;
+        do {
+          w = p[Math.floor(Math.random() * p.length)];
+        } while (w === tgt && p.length > 1);
+        tgt = w;
+        qm =
+          S.mode === "mix"
+            ? ["vi2zh", "zh2vi", "py2zh"][Math.floor(Math.random() * 3)]
+            : S.mode;
+        if (!bag.length) bag = KINDS.slice().sort(() => Math.random() - 0.5);
+        const kind = bag.pop(),
+          r = Math.max(30, Math.min(48, Math.min(W, H) * 0.08)),
+          spd = Math.max(0.55, 1 - (lv - 1) * 0.04) / S.diff,
+          xs = R(0.3, 0.7) * W;
+        en = [
+          {
+            w: tgt,
+            ok: true,
+            kind,
+            x: xs,
+            xs,
+            xe: W / 2 + R(-0.08, 0.08) * W,
+            y: HZ,
+            p: 0,
+            k: 1,
+            T: TT[kind] * spd,
+            charge: false,
+            dying: false,
+            ph: R(0, 6),
+            r,
+            sc: 0.3,
+            col: ["#e11d48", "#f97316", "#a21caf", "#0284c7", "#16a34a"][
+              Math.floor(Math.random() * 5)
+            ],
+          },
+        ];
+        lock = false;
+        pend = [];
+        buildOpts(p);
+        speak(tgt);
+      }
+      function choose(i) {
+        if (st !== "play" || lock || !en.length || en[0].dying || !opts[i])
+          return;
+        const e = en[0],
+          B = $("ans").children;
+        lock = true;
+        for (const b of B) b.disabled = true;
+        if (opts[i] === tgt) {
+          B[i].classList.add("ok");
+          e.dying = true;
+          pend = [0, 0.14, 0.28];
+        } else {
+          B[i].classList.add("bad");
+          const j = opts.indexOf(tgt);
+          if (j >= 0) B[j].classList.add("ok");
+          e.charge = true;
+          msg = { s: "Á à!! thì ra em chọn cái chéc!", l: 1.2, col: "#ff6b6b" };
+          snd(140, 0.25, "square", 0.12);
+        }
+      }
+      function show(n) {
+        ["menu", "set", "over", "bxs"].forEach((i) =>
+          $(i).classList.toggle("on", i === n),
+        );
+        $("bm").style.display = $("bs").style.display = n ? "none" : "block";
+        if (n === "menu") menu();
+        if (n === "set") renderSet();
+        if (n === "bxs") renderBX();
+      }
+      function start() {
+        if (pool().length < 4) {
+          show("set");
+          return;
+        }
+        mhp = hp = S.lives;
+        score = 0;
+        combo = 0;
+        rounds = 0;
+        pts = [];
+        tr = [];
+        miss = {};
+        msg = null;
+        st = "play";
+        show(null);
+        newRound();
+      }
+      function over() {
+        st = "idle";
+        en = [];
+        if (score > best) {
+          best = score;
+          try {
+            localStorage.setItem("htls", best);
+          } catch (e) {}
+        }
+        $("os").textContent = score;
+        const rk = addScore();
+        $("ob").textContent =
+          (rk ? "Hạng " + rk + " trên thiết bị này · " : "") +
+          "Kỷ lục: " +
+          best;
+        const m = Object.values(miss);
+        $("om").innerHTML = m.length
+          ? "<h3>Đi học lại mấy từ này ngay</h3><ul>" +
+            m
+              .slice(0, 8)
+              .map(
+                (w) =>
+                  "<li><b>" +
+                  esc(w[0]) +
+                  "</b> " +
+                  esc(w[1]) +
+                  " – " +
+                  esc(w[2]) +
+                  "</li>",
+              )
+              .join("") +
+            "</ul>"
+          : "";
+        const o = $("over");
+        o.style.pointerEvents = "none";
+        setTimeout(() => (o.style.pointerEvents = ""), 800);
+        show("over");
+      }
+      function burst(X, Y, col, n) {
+        for (let i = 0; i < n; i++) {
+          const a = R(0, 6.28),
+            s = R(60, 380);
+          pts.push({
+            x: X,
+            y: Y,
+            vx: Math.cos(a) * s,
+            vy: Math.sin(a) * s,
+            l: R(0.3, 0.8),
+            col,
+          });
+        }
+      }
+      function hurt(m) {
+        miss[tgt[0]] = tgt;
+        hp--;
+        combo = 0;
+        shake = 22;
+        flash = 1;
+        msg = { s: m, l: 1.2, col: "#ff3b4e" };
+        snd(90, 0.4, "square", 0.18);
+        if (hp <= 0) over();
+      }
+      function fireAt(e) {
+        const gx = px,
+          gy = H - 64,
+          a = Math.atan2(e.y - gy, e.x - gx);
+        snd(320, 0.16, "sawtooth");
+        snd(1200, 0.05, "square", 0.05);
+        muz = 0.08;
+        shake = Math.max(shake, 5);
+        tr.push({
+          x1: gx + Math.cos(a) * 40,
+          y1: gy + Math.sin(a) * 40,
+          x2: e.x,
+          y2: e.y,
+          l: 0.14,
+        });
+        burst(e.x, e.y, "#ffd23b", 14);
+      }
+      function win(e) {
+        burst(e.x, e.y, "#ffd23b", 30);
+        burst(e.x, e.y, "#ff9d1c", 22);
+        combo++;
+        const p = 10 * combo;
+        score += p;
+        rounds++;
+        msg = {
+          s: "Ồ wow! Giỏi vậy ta +" + p + (combo > 1 ? "  x" + combo : ""),
+          l: 1,
+          col: "#ffd23b",
+        };
+        snd(700, 0.2, "triangle", 0.12);
+        en = [];
+        nextT = 0.9;
+      }
+      function upd(dt) {
+        t += dt;
+        const showA = st === "play";
+        if (showA !== ansOn) {
+          ansOn = showA;
+          $("ans").style.display = showA ? "grid" : "none";
+        }
+        px += (mx - px) * Math.min(1, dt * 12);
+        shake *= Math.pow(0.02, dt);
+        flash = Math.max(0, flash - dt * 2);
+        muz = Math.max(0, muz - dt);
+        if (msg) {
+          msg.l -= dt;
+          if (msg.l <= 0) msg = null;
+        }
+        for (const p of pts) {
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vy += 500 * dt;
+          p.l -= dt;
+        }
+        pts = pts.filter((p) => p.l > 0);
+        for (const q of tr) q.l -= dt;
+        tr = tr.filter((q) => q.l > 0);
+        if (st !== "play") return;
+        if (!en.length) {
+          nextT -= dt;
+          if (nextT <= 0) newRound();
+          return;
+        }
+        const e = en[0];
+        mx = e.x;
+        my = e.y;
+        if (e.dying) {
+          for (let i = 0; i < pend.length; i++) pend[i] -= dt;
+          while (pend.length && pend[0] <= 0) {
+            pend.shift();
+            fireAt(e);
+            if (!pend.length) {
+              win(e);
+              return;
+            }
+          }
+          return;
+        }
+        // Đã chỉnh sửa: Tốc độ chạy nhanh hơn đáng kể khi chọn sai (tăng tốc độ gấp đôi)
+        if (e.charge) e.k = Math.min(6.0, e.k + dt * 25);
+        e.p += (dt / e.T) * e.k;
+        const pp = Math.min(1, e.p),
+          q = Math.pow(pp, 1.5),
+          ys = HZ + H * 0.02,
+          ye = H - 100 - e.r * 2.1;
+        e.y = ys + (ye - ys) * q;
+        e.sc = 0.3 + 0.75 * q;
+        e.x = e.xs + (e.xe - e.xs) * pp + Math.sin(t * 2 + e.ph) * 10 * e.sc;
+        if (e.p >= 1) {
+          const was = e.charge;
+          burst(e.x, H - 100, "#ff2b3d", 30);
+          en = [];
+          nextT = 0.9;
+          hurt(was ? "Chơi tệ zậy!" : "Sao em không chọn hả pé!");
+        }
+      }
+      let planes = [],
+        bombs = [],
+        booms = [],
+        nPlane = 1,
+        nBoom = 0.5;
+      function addBoom(bx, by, big) {
+        const k = 0.6 + Math.max(0, (by - HZ) / H) * 3;
+        booms.push({
+          x: bx,
+          y: by,
+          k: k * (big ? 1.25 : 1),
+          l: 0,
+          d: R(0.9, 1.3),
+          sd: [R(-1, 1), R(-1, 1), R(-1, 1)],
+        });
+        if (st === "play") snd(big ? 60 : 75, 0.6, "sawtooth", 0.05);
+      }
+      function drawPlane(pl) {
+        const sz = pl.sz / 90;
+        x.save();
+        x.translate(pl.x, pl.y);
+        x.scale(pl.dir * sz, sz);
+        x.rotate(Math.sin(t * 3 + pl.ph) * 0.03);
+        x.save();
+        x.globalCompositeOperation = "lighter";
+        const fl = 14 + Math.sin(t * 40 + pl.ph) * 4,
+          g = x.createRadialGradient(-46, 0, 0, -46 - fl * 0.6, 0, fl * 1.6);
+        g.addColorStop(0, "rgba(255,230,140,.95)");
+        g.addColorStop(0.5, "rgba(255,110,30,.55)");
+        g.addColorStop(1, "rgba(255,60,10,0)");
+        x.fillStyle = g;
+        x.fillRect(-46 - fl * 2.4, -fl * 1.4, fl * 2.6, fl * 2.8);
+        x.restore();
+        x.fillStyle = "#1f2633";
+        x.beginPath();
+        x.moveTo(-34, -2);
+        x.lineTo(-48, -22);
+        x.lineTo(-24, -2);
+        x.closePath();
+        x.fill();
+        x.beginPath();
+        x.ellipse(0, 0, 46, 8, 0, 0, 6.283);
+        x.fill();
+        x.fillStyle = "#2f3a4d";
+        x.beginPath();
+        x.moveTo(8, 3);
+        x.lineTo(-16, 24);
+        x.lineTo(-30, 24);
+        x.lineTo(-10, 3);
+        x.closePath();
+        x.fill();
+        x.fillStyle = "#c81e2e";
+        x.beginPath();
+        x.ellipse(38, 0, 9, 6, 0, 0, 6.283);
+        x.fill();
+        x.fillStyle = "#9fe3ff";
+        x.beginPath();
+        x.ellipse(12, -6, 9, 4, 0, 0, 6.283);
+        x.fill();
+        x.fillStyle = "#ffd23b";
+        x.fillRect(-12, -3, 8, 6);
+        x.restore();
+      }
+      function drawBomb(b) {
+        x.save();
+        x.translate(b.x, b.y);
+        x.rotate(Math.atan2(b.vy, b.vx * 0.6) - Math.PI / 2 + Math.PI);
+        x.scale(b.sz, b.sz);
+        x.fillStyle = "#111";
+        x.beginPath();
+        x.ellipse(0, 0, 4.5, 10, 0, 0, 6.283);
+        x.fill();
+        x.fillStyle = "#c81e2e";
+        x.fillRect(-4, 8, 8, 3);
+        x.fillStyle = "#333";
+        x.fillRect(-6, 10, 12, 2);
+        x.restore();
+      }
+      function sky(dt) {
+        dt = Math.min(dt, 0.05);
+        nPlane -= dt;
+        if (nPlane <= 0 && planes.length < 2) {
+          const dir = Math.random() < 0.5 ? 1 : -1;
+          planes.push({
+            dir,
+            x: dir > 0 ? -120 : W + 120,
+            y: R(0.07, 0.3) * H,
+            v: R(0.16, 0.26) * W + 60,
+            sz: Math.max(46, Math.min(W, H) * R(0.09, 0.13)),
+            ph: R(0, 6),
+            drops: Math.floor(R(1, 3.5)),
+            dropX: R(0.15, 0.85) * W,
+          });
+          nPlane = R(3, 6.5);
+        }
+        for (const pl of planes) {
+          pl.x += pl.dir * pl.v * dt;
+          if (pl.drops > 0 && (pl.x - pl.dropX) * pl.dir > 0) {
+            pl.drops--;
+            pl.dropX = pl.x + pl.dir * R(0.12, 0.3) * W;
+            bombs.push({
+              x: pl.x,
+              y: pl.y + pl.sz * 0.1,
+              vx: pl.dir * pl.v * 0.6,
+              vy: 20,
+              gy: HZ + R(0, 0.12) * H,
+              sz: Math.max(0.8, pl.sz / 70),
+            });
+          }
+        }
+        planes = planes.filter((pl) => pl.x > -200 && pl.x < W + 200);
+        for (const b of bombs) {
+          b.vy += 420 * dt;
+          b.x += b.vx * dt;
+          b.y += b.vy * dt;
+          if (b.y >= b.gy) {
+            b.dead = true;
+            addBoom(b.x, b.gy, true);
+          }
+        }
+        bombs = bombs.filter((b) => !b.dead);
+        nBoom -= dt;
+        if (nBoom <= 0) {
+          addBoom(R(0.05, 0.95) * W, HZ + R(0, 0.14) * H, false);
+          nBoom = R(1.2, 3.2);
+        }
+        for (const pl of planes) drawPlane(pl);
+        for (const b of bombs) drawBomb(b);
+        for (const m of booms) {
+          m.l += dt;
+          const u = m.l / m.d,
+            R0 = H * 0.1 * m.k;
+          x.save();
+          for (let i = 0; i < 3; i++) {
+            const sr = R0 * (0.5 + u * 0.7) * (0.8 + i * 0.15),
+              sx = m.x + m.sd[i] * R0 * 0.4,
+              sy = m.y - R0 * (0.2 + u * (0.9 + i * 0.3));
+            x.globalAlpha = Math.max(0, 0.5 * (1 - u));
+            x.fillStyle =
+              "rgb(" +
+              (45 + i * 12) +
+              "," +
+              (38 + i * 10) +
+              "," +
+              (36 + i * 10) +
+              ")";
+            x.beginPath();
+            x.arc(sx, sy, sr, 0, 6.283);
+            x.fill();
+          }
+          x.restore();
+          x.save();
+          x.globalCompositeOperation = "lighter";
+          const fr = R0 * Math.min(1, u * 3.2 + 0.15),
+            fa = Math.max(0, 1 - u * 1.15),
+            g = x.createRadialGradient(
+              m.x,
+              m.y - fr * 0.25,
+              0,
+              m.x,
+              m.y - fr * 0.25,
+              fr,
+            );
+          g.addColorStop(0, "rgba(255,255,230," + fa + ")");
+          g.addColorStop(0.3, "rgba(255,200,70," + fa * 0.9 + ")");
+          g.addColorStop(0.7, "rgba(235,80,20," + fa * 0.55 + ")");
+          g.addColorStop(1, "rgba(200,40,10,0)");
+          x.fillStyle = g;
+          x.beginPath();
+          x.arc(m.x, m.y - fr * 0.25, fr, 0, 6.283);
+          x.fill();
+          x.strokeStyle =
+            "rgba(255,230,170," + Math.max(0, 0.7 * (1 - u)) + ")";
+          x.lineWidth = 3 * m.k;
+          x.beginPath();
+          x.ellipse(
+            m.x,
+            m.y,
+            R0 * (0.3 + u * 1.5),
+            R0 * (0.3 + u * 1.5) * 0.28,
+            0,
+            0,
+            6.283,
+          );
+          x.stroke();
+          x.restore();
+          x.fillStyle = "rgba(255,170,60," + Math.max(0, 1 - u) + ")";
+          for (let i = 0; i < 8; i++) {
+            const an = i * 0.785 + m.sd[0],
+              dd = R0 * 1.3 * u;
+            x.fillRect(
+              m.x + Math.cos(an) * dd,
+              m.y - Math.abs(Math.sin(an)) * dd * 1.1 + u * u * R0 * 0.5,
+              3,
+              3,
+            );
+          }
+        }
+        booms = booms.filter((m) => m.l < m.d);
+      }
+      function live(dt) {
+        x.drawImage(bg, -8, -8, W + 16, H + 16);
+        x.save();
+        x.globalCompositeOperation = "lighter";
+        const a = -1.45 + Math.sin(t * 0.35) * 0.55,
+          bx = W * 0.1,
+          by = HZ + H * 0.1,
+          gg = x.createLinearGradient(
+            bx,
+            by,
+            bx + Math.cos(a) * H,
+            by + Math.sin(a) * H,
+          );
+        gg.addColorStop(0, "rgba(255,235,180,.07)");
+        gg.addColorStop(1, "rgba(255,235,180,0)");
+        x.fillStyle = gg;
+        x.beginPath();
+        x.moveTo(bx, by);
+        x.lineTo(
+          bx + Math.cos(a - 0.07) * H * 1.2,
+          by + Math.sin(a - 0.07) * H * 1.2,
+        );
+        x.lineTo(
+          bx + Math.cos(a + 0.07) * H * 1.2,
+          by + Math.sin(a + 0.07) * H * 1.2,
+        );
+        x.fill();
+        if (t > nf) {
+          fl = { x: R(0.05, 0.95) * W, l: 0.6 };
+          nf = t + R(1.5, 4.5);
+          if (st === "play") snd(55, 0.7, "sawtooth", 0.06);
+        }
+        if (fl) {
+          fl.l -= dt;
+          if (fl.l > 0) {
+            const g = x.createRadialGradient(
+              fl.x,
+              HZ - H * 0.03,
+              0,
+              fl.x,
+              HZ - H * 0.03,
+              H * 0.4,
+            );
+            g.addColorStop(0, "rgba(255,180,90," + fl.l * 0.8 + ")");
+            g.addColorStop(1, "rgba(255,120,40,0)");
+            x.fillStyle = g;
+            x.fillRect(0, 0, W, H);
+          } else fl = null;
+        }
+        for (const f of fires) {
+          const r =
+              (30 + Math.sin(t * 11 + f.x) * 5 + Math.sin(t * 23 + f.y) * 3) *
+              f.s,
+            g = x.createRadialGradient(f.x, f.y, 0, f.x, f.y - r * 0.3, r);
+          g.addColorStop(0, "rgba(255,210,110,.9)");
+          g.addColorStop(0.45, "rgba(230,85,22,.5)");
+          g.addColorStop(1, "rgba(200,50,10,0)");
+          x.fillStyle = g;
+          x.fillRect(f.x - r, f.y - r * 1.4, r * 2, r * 2.4);
+        }
+        for (const m of embers) {
+          const yy = (1 - ((t * m.v + m.y) % 1)) * H;
+          x.fillStyle =
+            "rgba(255," +
+            ((120 + Math.sin(t * 5 + m.p) * 50) | 0) +
+            ",40," +
+            (0.35 + 0.3 * Math.sin(t * 4 + m.p)) +
+            ")";
+          x.fillRect(m.x * W + Math.sin(t + m.p) * 20, yy, 2, 2);
+        }
+        x.restore();
+        sky(dt);
+        for (const s of smokes) {
+          const z = s.s * Math.max(W, H) * 0.9;
+          x.drawImage(
+            sp,
+            (((s.x + t * s.v) % 1.3) - 0.15) * W - z / 2,
+            s.y * H - z / 2,
+            z,
+            z,
+          );
+        }
+      }
+      function rb(a, b, w, h, q) {
+        x.beginPath();
+        x.moveTo(a + q, b);
+        x.arcTo(a + w, b, a + w, b + h, q);
+        x.arcTo(a + w, b + h, a, b + h, q);
+        x.arcTo(a, b + h, a, b, q);
+        x.arcTo(a, b, a + w, b, q);
+        x.closePath();
+      }
+      function man(r, ph, col, ride) {
+        const dark = "#1b0a14";
+        if (!ride)
+          for (const s of [-1, 1]) {
+            const lift = Math.max(0, Math.sin(ph + (s > 0 ? 0 : Math.PI))),
+              fy = r * (2.05 - lift * 0.55);
+            x.strokeStyle = dark;
+            x.lineWidth = r * 0.36;
+            x.beginPath();
+            x.moveTo(s * r * 0.3, r * 0.8);
+            x.lineTo(s * r * 0.5, r * (1.45 - lift * 0.3));
+            x.lineTo(s * r * 0.42, fy);
+            x.stroke();
+            x.fillStyle = "#000";
+            x.beginPath();
+            x.ellipse(
+              s * r * 0.5,
+              fy + r * 0.05,
+              r * 0.28,
+              r * 0.14,
+              0,
+              0,
+              6.283,
+            );
+            x.fill();
+          }
+        x.fillStyle = col;
+        rb(-r * 0.7, -r * 1.1, r * 1.4, r * 2, r * 0.2);
+        x.fill();
+        for (const s of [-1, 1]) {
+          let hx, hy;
+          x.strokeStyle = col;
+          x.lineWidth = r * 0.32;
+          x.beginPath();
+          x.moveTo(s * r * 0.62, -r * 0.85);
+          if (ride) {
+            x.lineTo(s * r * 1.0, -r * 0.25);
+            x.lineTo(s * r * 0.75, r * 0.2);
+            hx = s * r * 0.75;
+            hy = r * 0.2;
+          } else {
+            const sw = Math.sin(ph + (s > 0 ? Math.PI : 0));
+            hy = r * (0.1 - Math.max(0, sw) * 0.45);
+            x.lineTo(s * r * 1.25, -r * 0.25 + sw * r * 0.2);
+            x.lineTo(s * r * 1.05, hy);
+            hx = s * r * 1.05;
+          }
+          x.stroke();
+          x.fillStyle = "#f1c7a0";
+          x.beginPath();
+          x.arc(hx, hy, r * 0.15, 0, 6.283);
+          x.fill();
+        }
+        const hy = -r * 1.55 - (ride ? 0 : Math.abs(Math.sin(ph)) * r * 0.08);
+        x.fillStyle = "#f1c7a0";
+        x.beginPath();
+        x.arc(0, hy, r * 0.4, 0, 6.283);
+        x.fill();
+        x.fillStyle = dark;
+        x.beginPath();
+        x.arc(0, hy - r * 0.02, r * 0.45, Math.PI, 0);
+        x.fill();
+        x.fillRect(-r * 0.45, hy - r * 0.06, r * 0.9, r * 0.08);
+        x.strokeStyle = "#ff1e38";
+        x.lineWidth = r * 0.07;
+        x.beginPath();
+        x.moveTo(-r * 0.24, hy + r * 0.02);
+        x.lineTo(-r * 0.07, hy + r * 0.09);
+        x.moveTo(r * 0.24, hy + r * 0.02);
+        x.lineTo(r * 0.07, hy + r * 0.09);
+        x.stroke();
+        x.fillStyle = "#4a0f1a";
+        x.beginPath();
+        x.ellipse(0, hy + r * 0.24, r * 0.12, r * 0.07, 0, 0, 6.283);
+        x.fill();
+      }
+      function enemy(e) {
+        const r = e.r,
+          ph = t * 9 + e.ph,
+          k = e.kind,
+          aura = () => {
+            x.shadowColor = e.charge ? "#ff2b3d" : "transparent";
+            x.shadowBlur = e.charge ? 22 : 0;
+          };
+        x.save();
+        x.translate(e.x, e.y);
+        x.scale(e.sc, e.sc);
+        x.lineCap = "round";
+        x.lineJoin = "round";
+        x.fillStyle = "rgba(0,0,0,.4)";
+        x.beginPath();
+        x.ellipse(
+          0,
+          r * 2.25,
+          r *
+            (k === "run"
+              ? 0.95
+              : k === "bike"
+                ? 0.8
+                : k === "horse"
+                  ? 1.1
+                  : 1.7),
+          r * 0.22,
+          0,
+          0,
+          6.283,
+        );
+        x.fill();
+        aura();
+        if (k !== "run") x.translate(0, Math.sin(ph * 1.3) * r * 0.035);
+        if (k === "run") {
+          man(r, ph, e.col, false);
+        } else if (k === "horse") {
+          x.fillStyle = "#6b3f1d";
+          x.beginPath();
+          x.ellipse(0, r * 1.1, r * 1.05, r * 0.85, 0, 0, 6.283);
+          x.fill();
+          for (const s of [-1, 1]) {
+            const lift = Math.max(
+                0,
+                Math.sin(ph * 0.9 + (s > 0 ? 0 : Math.PI)),
+              ),
+              fy = r * (2.15 - lift * 0.55);
+            x.strokeStyle = "#5a3416";
+            x.lineWidth = r * 0.32;
+            x.beginPath();
+            x.moveTo(s * r * 0.5, r * 1.4);
+            x.lineTo(s * r * 0.58, r * (1.75 - lift * 0.35));
+            x.lineTo(s * r * 0.5, fy);
+            x.stroke();
+            x.fillStyle = "#111";
+            x.beginPath();
+            x.ellipse(
+              s * r * 0.5,
+              fy + r * 0.04,
+              r * 0.2,
+              r * 0.1,
+              0,
+              0,
+              6.283,
+            );
+            x.fill();
+          }
+          x.save();
+          x.translate(0, -r * 0.35);
+          man(r, ph, e.col, true);
+          x.restore();
+          x.fillStyle = "#7a4a24";
+          rb(-r * 0.38, r * 0.55, r * 0.76, r * 1.0, r * 0.3);
+          x.fill();
+          x.strokeStyle = "#2a1608";
+          x.lineWidth = r * 0.14;
+          x.beginPath();
+          x.moveTo(0, r * 0.6);
+          x.lineTo(0, r * 1.2);
+          x.stroke();
+          x.fillStyle = "#7a4a24";
+          for (const s of [-1, 1]) {
+            x.beginPath();
+            x.moveTo(s * r * 0.12, r * 1.0);
+            x.lineTo(s * r * 0.3, r * 0.62);
+            x.lineTo(s * r * 0.34, r * 1.05);
+            x.closePath();
+            x.fill();
+          }
+          x.fillStyle = "#8b5a2b";
+          x.beginPath();
+          x.ellipse(0, r * 1.45, r * 0.32, r * 0.5, 0, 0, 6.283);
+          x.fill();
+          x.fillStyle = "#a3703a";
+          x.beginPath();
+          x.ellipse(0, r * 1.85, r * 0.24, r * 0.17, 0, 0, 6.283);
+          x.fill();
+          x.fillStyle = "#1a0d05";
+          for (const s of [-1, 1]) {
+            x.beginPath();
+            x.arc(s * r * 0.09, r * 1.88, r * 0.04, 0, 6.283);
+            x.fill();
+            x.beginPath();
+            x.arc(s * r * 0.2, r * 1.25, r * 0.06, 0, 6.283);
+            x.fill();
+          }
+        } else if (k === "bike") {
+          x.save();
+          x.translate(0, r * 1.5);
+          x.rotate(Math.sin(t * 5 + e.ph) * 0.05);
+          x.translate(0, -r * 1.5);
+          x.strokeStyle = "#1b0a14";
+          x.lineWidth = r * 0.34;
+          for (const s of [-1, 1]) {
+            x.beginPath();
+            x.moveTo(s * r * 0.35, r * 0.7);
+            x.lineTo(s * r * 0.8, r * 1.3);
+            x.lineTo(s * r * 0.55, r * 1.75);
+            x.stroke();
+          }
+          x.save();
+          x.translate(0, r * 0.1);
+          man(r, ph, e.col, true);
+          x.restore();
+          x.fillStyle = "#111";
+          rb(-r * 0.17, r * 1.15, r * 0.34, r * 1.05, r * 0.14);
+          x.fill();
+          x.strokeStyle = "#555";
+          x.lineWidth = r * 0.04;
+          for (let i = 0; i < 4; i++) {
+            const yy = r * 1.2 + ((t * 8 + i * 0.25) % 1) * r * 0.9;
+            x.beginPath();
+            x.moveTo(-r * 0.16, yy);
+            x.lineTo(r * 0.16, yy);
+            x.stroke();
+          }
+          x.strokeStyle = "#9aa7b5";
+          x.lineWidth = r * 0.07;
+          for (const s of [-1, 1]) {
+            x.beginPath();
+            x.moveTo(s * r * 0.14, r * 0.95);
+            x.lineTo(s * r * 0.14, r * 1.4);
+            x.stroke();
+          }
+          x.fillStyle = "#c81e2e";
+          x.beginPath();
+          x.moveTo(-r * 0.5, r * 0.75);
+          x.lineTo(r * 0.5, r * 0.75);
+          x.lineTo(r * 0.28, r * 1.25);
+          x.lineTo(-r * 0.28, r * 1.25);
+          x.closePath();
+          x.fill();
+          x.shadowColor = "#ffe45c";
+          x.shadowBlur = 16;
+          x.fillStyle = "#fff7b0";
+          x.beginPath();
+          x.arc(0, r * 0.98, r * 0.2, 0, 6.283);
+          x.fill();
+          aura();
+          x.strokeStyle = "#222";
+          x.lineWidth = r * 0.1;
+          x.beginPath();
+          x.moveTo(-r * 0.9, r * 0.4);
+          x.lineTo(r * 0.9, r * 0.4);
+          x.stroke();
+          x.fillStyle = "#111";
+          for (const s of [-1, 1]) {
+            x.beginPath();
+            x.arc(s * r * 0.9, r * 0.4, r * 0.09, 0, 6.283);
+            x.fill();
+          }
+          x.restore();
+        } else if (k === "car") {
+          x.save();
+          x.translate(0, -r * 0.1);
+          man(r, ph, e.col, true);
+          x.restore();
+          x.fillStyle = "#4d5d2c";
+          rb(-r * 1.3, r * 0.55, r * 2.6, r * 1.45, r * 0.25);
+          x.fill();
+          x.fillStyle = "#3a451f";
+          rb(-r * 1.15, r * 0.2, r * 2.3, r * 0.42, r * 0.08);
+          x.fill();
+          x.fillStyle = "rgba(170,225,255,.55)";
+          rb(-r * 1.05, r * 0.26, r * 2.1, r * 0.28, r * 0.05);
+          x.fill();
+          x.strokeStyle = "#1d2410";
+          x.lineWidth = r * 0.05;
+          for (let i = -3; i <= 3; i++) {
+            x.beginPath();
+            x.moveTo(i * r * 0.2, r * 1.15);
+            x.lineTo(i * r * 0.2, r * 1.6);
+            x.stroke();
+          }
+          x.shadowColor = "#ffe45c";
+          x.shadowBlur = 16;
+          x.fillStyle = "#fff7b0";
+          for (const s of [-1, 1]) {
+            x.beginPath();
+            x.arc(s * r * 0.98, r * 0.98, r * 0.2, 0, 6.283);
+            x.fill();
+          }
+          aura();
+          x.fillStyle = "#2a2a2a";
+          rb(-r * 1.4, r * 1.78, r * 2.8, r * 0.22, r * 0.08);
+          x.fill();
+          x.fillStyle = "#111";
+          x.strokeStyle = "#555";
+          x.lineWidth = r * 0.04;
+          for (const s of [-1, 1]) {
+            rb(s * r * 1.45 - r * 0.2, r * 1.3, r * 0.4, r * 0.85, r * 0.1);
+            x.fill();
+            for (let i = 0; i < 3; i++) {
+              const yy = r * 1.35 + ((t * 8 + i / 3) % 1) * r * 0.75;
+              x.beginPath();
+              x.moveTo(s * r * 1.45 - r * 0.18, yy);
+              x.lineTo(s * r * 1.45 + r * 0.18, yy);
+              x.stroke();
+            }
+          }
+        } else {
+          for (const s of [-1, 1]) {
+            x.fillStyle = "#222";
+            rb(s * r * 1.15 - r * 0.35, r * 0.35, r * 0.7, r * 1.85, r * 0.2);
+            x.fill();
+            x.strokeStyle = "#666";
+            x.lineWidth = r * 0.05;
+            for (let i = 0; i < 6; i++) {
+              const yy = r * 0.45 + ((t * 6 + i / 6) % 1) * r * 1.65;
+              x.beginPath();
+              x.moveTo(s * r * 1.15 - r * 0.3, yy);
+              x.lineTo(s * r * 1.15 + r * 0.3, yy);
+              x.stroke();
+            }
+          }
+          x.fillStyle = "#4b5a2a";
+          rb(-r * 1.05, r * 0.75, r * 2.1, r * 1.35, r * 0.2);
+          x.fill();
+          x.fillStyle = "#5c6e33";
+          rb(-r * 0.9, r * 0.85, r * 1.8, r * 0.5, r * 0.1);
+          x.fill();
+          x.save();
+          x.translate(0, -r * 0.65);
+          man(r, ph, e.col, true);
+          x.restore();
+          x.fillStyle = "#3d4a22";
+          rb(-r * 0.75, r * 0.05, r * 1.5, r * 0.95, r * 0.3);
+          x.fill();
+          x.fillStyle = "#2f3a1b";
+          rb(-r * 0.18, r * 0.2, r * 0.36, r * 0.3, r * 0.1);
+          x.fill();
+          x.fillStyle = "#2a3317";
+          x.beginPath();
+          x.arc(0, r * 0.58, r * 0.26, 0, 6.283);
+          x.fill();
+          x.fillStyle = "#050505";
+          x.beginPath();
+          x.arc(0, r * 0.58, r * 0.15, 0, 6.283);
+          x.fill();
+        }
+        x.shadowBlur = 0;
+        if (e.charge) {
+          x.font = "800 " + Math.round(r * 0.9) + "px " + F;
+          x.textAlign = "center";
+          x.textBaseline = "middle";
+          x.lineWidth = r * 0.14;
+          x.strokeStyle = "#fff";
+          x.strokeText("!!", 0, -r * 2.55);
+          x.fillStyle = "#ff2b3d";
+          x.fillText("!!", 0, -r * 2.55);
+        }
+        x.restore();
+      }
+      function draw(dt) {
+        x.save();
+        if (shake > 0.3) x.translate(R(-shake, shake), R(-shake, shake));
+        live(dt);
+        if (st === "play")
+          for (const e of en.slice().sort((a, b) => a.y - b.y)) enemy(e);
+        for (const q of tr) {
+          x.strokeStyle = "rgba(255,70,20," + q.l / 0.14 + ")";
+          x.lineWidth = 3;
+          x.shadowColor = "#ffd23b";
+          x.shadowBlur = 12;
+          x.beginPath();
+          x.moveTo(q.x1, q.y1);
+          x.lineTo(q.x2, q.y2);
+          x.stroke();
+          x.shadowBlur = 0;
+        }
+        for (const p of pts) {
+          x.globalAlpha = Math.max(0, p.l * 1.5);
+          x.fillStyle = p.col;
+          x.fillRect(p.x - 2, p.y - 2, 4, 4);
+        }
+        x.globalAlpha = 1;
+        const gx = px,
+          gy = H - 64,
+          a = Math.atan2(my - gy, mx - gx);
+        x.fillStyle = "#34502a";
+        x.beginPath();
+        x.ellipse(gx, gy + 30, 46, 22, 0, Math.PI, 0);
+        x.fill();
+        x.strokeStyle = "#ffd23b";
+        x.lineWidth = 2;
+        x.stroke();
+        x.save();
+        x.translate(gx, gy);
+        x.rotate(a);
+        x.fillStyle = "#2a2126";
+        x.fillRect(-8, -7, 34, 14);
+        x.fillStyle = "#3b2f35";
+        x.fillRect(26, -4, 28, 8);
+        x.fillStyle = "#ff2b3d";
+        x.fillRect(26, -4, 28, 2);
+        if (muz > 0) {
+          x.fillStyle = "#ffe08a";
+          x.shadowColor = "#ff9d1c";
+          x.shadowBlur = 26;
+          x.beginPath();
+          x.moveTo(54, 0);
+          x.lineTo(80, -10);
+          x.lineTo(70, 0);
+          x.lineTo(80, 10);
+          x.closePath();
+          x.fill();
+          x.shadowBlur = 0;
+        }
+        x.restore();
+        if (st === "play") {
+          x.strokeStyle = "#ff2d55";
+          x.lineWidth = 2.5;
+          x.beginPath();
+          x.arc(mx, my, 14, 0, 6.283);
+          x.moveTo(mx - 22, my);
+          x.lineTo(mx - 8, my);
+          x.moveTo(mx + 8, my);
+          x.lineTo(mx + 22, my);
+          x.moveTo(mx, my - 22);
+          x.lineTo(mx, my - 8);
+          x.moveTo(mx, my + 8);
+          x.lineTo(mx, my + 22);
+          x.stroke();
+        }
+        x.restore();
+        const v = x.createRadialGradient(
+          W / 2,
+          H / 2,
+          Math.min(W, H) * 0.3,
+          W / 2,
+          H / 2,
+          Math.max(W, H) * 0.75,
+        );
+        v.addColorStop(0, "rgba(0,0,0,0)");
+        v.addColorStop(1, "rgba(10,30,80,.28)");
+        x.fillStyle = v;
+        x.fillRect(0, 0, W, H);
+        if (flash > 0) {
+          x.fillStyle = "rgba(255,20,40," + flash * 0.35 + ")";
+          x.fillRect(0, 0, W, H);
+        }
+        if (st === "play") {
+          hud();
+          x.shadowBlur = 0;
+        }
+      }
+      function hud() {
+        const k = Math.max(0.78, Math.min(1, W / 520));
+        x.textBaseline = "middle";
+        x.textAlign = "center";
+        const bw = Math.min(W - 24, 430),
+          bx = W / 2 - bw / 2,
+          by = 58,
+          bh = 92 * k;
+        x.fillStyle = "rgba(14,40,104,.92)";
+        x.fillRect(bx, by, bw, bh);
+        x.strokeStyle = "#ffd23b";
+        x.lineWidth = 2;
+        x.strokeRect(bx, by, bw, bh);
+        let l1,
+          big,
+          sm,
+          zh = false;
+        if (qm === "vi2zh") {
+          l1 = "Dịch ra chữ Hán ?";
+          big = tgt[2];
+          sm = S.hint ? tgt[1] : "";
+        } else if (qm === "zh2vi") {
+          l1 = "Dịch ra nghĩa Tiếng Việt?";
+          big = tgt[0];
+          sm = S.hint ? tgt[1] : "";
+          zh = true;
+        } else {
+          l1 = "Phiên âm chữ hán của từ này là?";
+          big = tgt[1];
+          sm = S.hint ? tgt[2] : "";
+        }
+        x.fillStyle = "#ffd166";
+        x.font = "600 " + 13 * k + "px " + F;
+        x.fillText(l1, W / 2, by + 14 * k);
+        let fs = (zh ? 40 : 30) * k;
+        x.fillStyle = "#fff";
+        x.font = "800 " + fs + "px " + F;
+        while (x.measureText(big).width > bw - 24 && fs > 12) {
+          fs--;
+          x.font = "800 " + fs + "px " + F;
+        }
+        x.fillText(big, W / 2, by + 46 * k);
+        x.fillStyle = "#ffd23b";
+        x.font = "600 " + 15 * k + "px " + F;
+        x.fillText(sm, W / 2, by + 76 * k);
+        x.shadowColor = "#0b2a6b";
+        x.shadowBlur = 6;
+        x.textAlign = "left";
+        x.fillStyle = "#ff3d6e";
+        x.font = "700 " + 22 * k + "px " + F;
+        x.fillText("♥".repeat(hp) + "♡".repeat(mhp - hp), 16, 26);
+        x.textAlign = "right";
+        x.fillStyle = "#fff";
+        x.font = "700 " + 22 * k + "px " + F;
+        x.fillText(score, W - 16, 26);
+        x.fillStyle = "#ffd23b";
+        x.font = "600 13px " + F;
+        x.fillText(
+          "Kỷ lục " + best + (combo > 1 ? "  ·  combo x" + combo : ""),
+          W - 16,
+          48,
+        );
+        if (msg) {
+          x.globalAlpha = Math.min(1, msg.l * 2);
+          x.textAlign = "center";
+          x.font = "800 " + 28 * k + "px " + F;
+          x.lineJoin = "round";
+          x.lineWidth = 6;
+          x.strokeStyle = "#0b2a6b";
+          x.strokeText(msg.s, W / 2, H * 0.5);
+          x.fillStyle = msg.col;
+          x.fillText(msg.s, W / 2, H * 0.5);
+          x.globalAlpha = 1;
+        }
+      }
+      let last = performance.now();
+      (function loop(n) {
+        const dt = Math.min(0.05, (n - last) / 1000);
+        last = n;
+        upd(dt);
+        draw(dt);
+        requestAnimationFrame(loop);
+      })(last);
+      c.addEventListener("pointermove", (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+      });
+      c.addEventListener("pointerdown", (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+      });
+      document.addEventListener("pointerdown", () => {
+        if (!ac)
+          try {
+            ac = new (window.AudioContext || window.webkitAudioContext)();
+          } catch (_) {}
+      });
+      addEventListener("keydown", (e) => {
+        if (st === "play" && /^[1-4]$/.test(e.key)) choose(+e.key - 1);
+        if ((e.key === "r" || e.key === "R") && st === "play") speak(tgt, true);
+        if (e.key === "Escape" && st === "play") {
+          st = "idle";
+          en = [];
+          show("menu");
+        }
+      });
+      const MODES = {
+        vi2zh: "Nghĩa → Chữ Hán",
+        zh2vi: "Chữ Hán → Nghĩa",
+        py2zh: "Pinyin → Chữ Hán",
+        mix: "Ngẫu nhiên",
+      };
+      function menu() {
+        $("nm").value = S.name || "";
+        $("sum").innerHTML =
+          "Kiểu câu hỏi: <b>" +
+          MODES[S.mode] +
+          "</b><br>Từ đã chọn: <b>" +
+          pool().length +
+          "</b> · Số mạng: <b>" +
+          S.lives +
+          "</b> · Kỷ lục: <b>" +
+          best +
+          "</b>";
+      }
+      function chips(el, o, cur, fn, rd) {
+        el.innerHTML = "";
+        o.forEach(([v, l]) => {
+          const b = document.createElement("button");
+          b.textContent = l;
+          b.setAttribute("aria-pressed", v === cur);
+          b.onclick = () => {
+            fn(v);
+            save();
+            (rd || renderSet)();
+          };
+          el.appendChild(b);
+        });
+      }
+      function renderSet() {
+        chips($("cm"), Object.entries(MODES), S.mode, (v) => {
+          S.mode = v;
+        });
+        chips(
+          $("cd"),
+          [
+            [0.7, "Dễ"],
+            [1, "Vừa"],
+            [1.4, "Khó"],
+          ],
+          S.diff,
+          (v) => {
+            S.diff = v;
+          },
+        );
+        chips(
+          $("cl"),
+          [
+            [3, "3 mạng"],
+            [5, "5 mạng"],
+            [7, "7 mạng"],
+          ],
+          S.lives,
+          (v) => {
+            S.lives = v;
+          },
+        );
+        $("hint").checked = S.hint;
+        $("snd").checked = S.sound;
+        $("voc").checked = S.voice;
+        chips(
+          $("cv"),
+          [
+            [0.7, "Chậm"],
+            [0.9, "Vừa"],
+          ],
+          S.rate,
+          (v) => {
+            S.rate = v;
+          },
+        );
+        {
+          const b = document.createElement("button");
+          b.textContent = "🔊 Nghe thử";
+          b.onclick = () => speak(pool()[0] || BASE[0], true);
+          $("cv").appendChild(b);
+          $("vh").textContent = !window.speechSynthesis
+            ? "Trình duyệt này không hỗ trợ đọc phát âm."
+            : zhv
+              ? ""
+              : "Thiết bị chưa có giọng đọc tiếng Trung. Nếu không nghe thấy tiếng, hãy cài thêm giọng trong cài đặt hệ thống.";
+        }
+        const A = all(),
+          cg = $("cg");
+        cg.innerHTML = "";
+        const gb = (l, fn, on) => {
+          const b = document.createElement("button");
+          b.textContent = l;
+          b.setAttribute("aria-pressed", !!on);
+          b.onclick = () => {
+            fn();
+            save();
+            renderSet();
+          };
+          cg.appendChild(b);
+        };
+        gb(
+          "Chọn tất cả",
+          () => {
+            S.sel = A.map((w) => w[0]);
+          },
+          A.length === S.sel.length,
+        );
+        gb(
+          "Bỏ hết",
+          () => {
+            S.sel = [];
+          },
+          false,
+        );
+        G.forEach((n, g) => {
+          const ws = A.filter((w) => w[3] === g);
+          if (!ws.length) return;
+          const on = ws.every((w) => S.sel.includes(w[0]));
+          gb(
+            n + " (" + ws.length + ")",
+            () => {
+              S.sel = S.sel.filter((h) => !ws.some((w) => w[0] === h));
+              if (!on) ws.forEach((w) => S.sel.push(w[0]));
+            },
+            on,
+          );
+        });
+        $("cnt").textContent = "(" + pool().length + "/" + A.length + ")";
+        const cw = $("cw");
+        cw.innerHTML = "";
+        A.forEach((w) => {
+          const b = document.createElement("button"),
+            on = S.sel.includes(w[0]);
+          b.className = "w";
+          b.setAttribute("aria-pressed", on);
+          b.innerHTML =
+            "<b>" +
+            esc(w[0]) +
+            "</b>" +
+            esc(w[1]) +
+            "<small>" +
+            esc(w[2]) +
+            "</small>";
+          b.onclick = () => {
+            S.sel = on ? S.sel.filter((h) => h !== w[0]) : S.sel.concat(w[0]);
+            save();
+            renderSet();
+          };
+          cw.appendChild(b);
+        });
+        $("warn").textContent =
+          pool().length < 4 ? "Cần chọn ít nhất 4 từ để chơi." : "";
+      }
+      $("hint").onchange = (e) => {
+        S.hint = e.target.checked;
+        save();
+      };
+      $("snd").onchange = (e) => {
+        S.sound = e.target.checked;
+        save();
+      };
+      $("voc").onchange = (e) => {
+        S.voice = e.target.checked;
+        save();
+      };
+      $("add").onclick = () => {
+        let n = 0;
+        $("ta")
+          .value.split("\n")
+          .forEach((l) => {
+            const p = l.split("|").map((s) => s.trim());
+            if (
+              p.length >= 3 &&
+              p[0] &&
+              p[2] &&
+              !all().some((w) => w[0] === p[0]) &&
+              S.custom.length < 60
+            ) {
+              S.custom.push([p[0], p[1], p[2], 3]);
+              S.sel.push(p[0]);
+              n++;
+            }
+          });
+        $("am").textContent = n
+          ? "Đã thêm " + n + " từ."
+          : "Chưa thêm được từ nào. Mỗi dòng cần dạng: 汉字 | pinyin | nghĩa";
+        if (n) $("ta").value = "";
+        save();
+        renderSet();
+      };
+      function renderBX() {
+        const L = S.board,
+          ol = $("bl");
+        ol.innerHTML = "";
+        L.forEach((e, i) => {
+          const li = document.createElement("li");
+          li.innerHTML =
+            '<span class="rk">' +
+            (i + 1) +
+            "</span><span>" +
+            esc(e.n || "Người chơi") +
+            "<small>" +
+            esc(MODES[e.m] || "") +
+            " · " +
+            new Date(e.d || 0).toLocaleDateString("vi-VN") +
+            '</small></span><span class="sc">' +
+            (+e.s || 0) +
+            "</span>";
+          ol.appendChild(li);
+        });
+        $("bn").textContent = !L.length ? "Chưa có điểm nào. Hãy ra trận!" : "";
+      }
+      $("bx").onclick = () => show("bxs");
+      $("bx2").onclick = () => show("bxs");
+      $("bback").onclick = () => show("menu");
+      $("bs").onclick = () => speak(tgt, true);
+      $("nm").oninput = (e) => {
+        S.name = e.target.value.trim().slice(0, 16);
+        save();
+      };
+      $("go").onclick = start;
+      $("again").onclick = start;
+      $("st").onclick = () => show("set");
+      $("done").onclick = () => show("menu");
+      $("home").onclick = () => show("menu");
+      $("bm").onclick = () => {
+        st = "idle";
+        en = [];
+        show("menu");
+      };
+      show("menu");
+    </script>
+  </body>
+</html>
